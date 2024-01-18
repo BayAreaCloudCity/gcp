@@ -1,12 +1,62 @@
 [
  {
+  "name": "time",
+  "type": "STRING",
+  "mode": "NULLABLE"
+ },
+ {
   "name": "station_id",
   "type": "INTEGER",
   "mode": "NULLABLE"
  },
  {
-  "name": "time",
+  "name": "district",
+  "type": "INTEGER",
+  "mode": "NULLABLE"
+ },
+ {
+  "name": "freeway",
+  "type": "INTEGER",
+  "mode": "NULLABLE"
+ },
+ {
+  "name": "direction",
   "type": "STRING",
+  "mode": "NULLABLE"
+ },
+ {
+  "name": "lane_type",
+  "type": "STRING",
+  "mode": "NULLABLE"
+ },
+ {
+  "name": "station_length",
+  "type": "FLOAT",
+  "mode": "NULLABLE"
+ },
+ {
+  "name": "samples",
+  "type": "INTEGER",
+  "mode": "NULLABLE"
+ },
+ {
+  "name": "percentage_observed",
+  "type": "INTEGER",
+  "mode": "NULLABLE"
+ },
+ {
+  "name": "total_flow",
+  "type": "INTEGER",
+  "mode": "NULLABLE"
+ },
+ {
+  "name": "average_occupancy",
+  "type": "FLOAT",
+  "mode": "NULLABLE"
+ },
+ {
+  "name": "average_speed",
+  "type": "FLOAT",
   "mode": "NULLABLE"
  },
  {
@@ -15,21 +65,31 @@
   "mode": "REPEATED",
   "fields": [
    {
-    "name": "speed",
-    "type": "FLOAT",
+    "name": "samples",
+    "type": "INTEGER",
     "mode": "NULLABLE"
    },
    {
     "name": "flow",
+    "type": "INTEGER",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "average_occupancy",
     "type": "FLOAT",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "average_speed",
+    "type": "FLOAT",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "observed",
+    "type": "BOOLEAN",
     "mode": "NULLABLE"
    }
   ]
- },
- {
-  "name": "observed",
-  "type": "FLOAT",
-  "mode": "NULLABLE"
  },
  {
   "name": "subscription_name",

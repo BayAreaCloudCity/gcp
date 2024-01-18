@@ -6,14 +6,25 @@ syntax = "proto3";
 
 message PeMS {
 //  option (gen_bq_schema.bigquery_opts).table_name = "pems";
-
-  uint32 station_id = 1;
-  string time = 2;
-  repeated Lane lanes = 3;
-  float observed = 4;
+  string time = 1;
+  uint32 station_id = 2;
+  uint32 district = 3;
+  uint32 freeway = 4;
+  string direction = 5;
+  string lane_type = 6;
+  float station_length = 7;
+  uint32 samples = 8;
+  uint32 percentage_observed = 9;
+  uint32 total_flow = 10;
+  float average_occupancy = 11;
+  float average_speed = 12;
+  repeated Lane lanes = 13;
 
   message Lane {
-    float speed = 1;
-    float flow = 2;
+    uint32 samples = 1;
+    uint32 flow = 2;
+    float average_occupancy = 3;
+    float average_speed = 4;
+    bool observed = 5;
   }
 }

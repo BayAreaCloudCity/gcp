@@ -21,8 +21,6 @@ class PeMS(google.protobuf.message.Message):
     """import "bq_table.proto";
     import "bq_field.proto";
     package pems;
-
-     option (gen_bq_schema.bigquery_opts).table_name = "pems";
     """
 
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
@@ -31,35 +29,72 @@ class PeMS(google.protobuf.message.Message):
     class Lane(google.protobuf.message.Message):
         DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
-        SPEED_FIELD_NUMBER: builtins.int
+        SAMPLES_FIELD_NUMBER: builtins.int
         FLOW_FIELD_NUMBER: builtins.int
-        speed: builtins.float
-        flow: builtins.float
+        AVERAGE_OCCUPANCY_FIELD_NUMBER: builtins.int
+        AVERAGE_SPEED_FIELD_NUMBER: builtins.int
+        OBSERVED_FIELD_NUMBER: builtins.int
+        samples: builtins.int
+        flow: builtins.int
+        average_occupancy: builtins.float
+        average_speed: builtins.float
+        observed: builtins.bool
         def __init__(
             self,
             *,
-            speed: builtins.float = ...,
-            flow: builtins.float = ...,
+            samples: builtins.int = ...,
+            flow: builtins.int = ...,
+            average_occupancy: builtins.float = ...,
+            average_speed: builtins.float = ...,
+            observed: builtins.bool = ...,
         ) -> None: ...
-        def ClearField(self, field_name: typing_extensions.Literal["flow", b"flow", "speed", b"speed"]) -> None: ...
+        def ClearField(self, field_name: typing_extensions.Literal["average_occupancy", b"average_occupancy", "average_speed", b"average_speed", "flow", b"flow", "observed", b"observed", "samples", b"samples"]) -> None: ...
 
-    STATION_ID_FIELD_NUMBER: builtins.int
     TIME_FIELD_NUMBER: builtins.int
+    STATION_ID_FIELD_NUMBER: builtins.int
+    DISTRICT_FIELD_NUMBER: builtins.int
+    FREEWAY_FIELD_NUMBER: builtins.int
+    DIRECTION_FIELD_NUMBER: builtins.int
+    LANE_TYPE_FIELD_NUMBER: builtins.int
+    STATION_LENGTH_FIELD_NUMBER: builtins.int
+    SAMPLES_FIELD_NUMBER: builtins.int
+    PERCENTAGE_OBSERVED_FIELD_NUMBER: builtins.int
+    TOTAL_FLOW_FIELD_NUMBER: builtins.int
+    AVERAGE_OCCUPANCY_FIELD_NUMBER: builtins.int
+    AVERAGE_SPEED_FIELD_NUMBER: builtins.int
     LANES_FIELD_NUMBER: builtins.int
-    OBSERVED_FIELD_NUMBER: builtins.int
-    station_id: builtins.int
     time: builtins.str
+    """ option (gen_bq_schema.bigquery_opts).table_name = "pems";"""
+    station_id: builtins.int
+    district: builtins.int
+    freeway: builtins.int
+    direction: builtins.str
+    lane_type: builtins.str
+    station_length: builtins.float
+    samples: builtins.int
+    percentage_observed: builtins.int
+    total_flow: builtins.int
+    average_occupancy: builtins.float
+    average_speed: builtins.float
     @property
     def lanes(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___PeMS.Lane]: ...
-    observed: builtins.float
     def __init__(
         self,
         *,
-        station_id: builtins.int = ...,
         time: builtins.str = ...,
+        station_id: builtins.int = ...,
+        district: builtins.int = ...,
+        freeway: builtins.int = ...,
+        direction: builtins.str = ...,
+        lane_type: builtins.str = ...,
+        station_length: builtins.float = ...,
+        samples: builtins.int = ...,
+        percentage_observed: builtins.int = ...,
+        total_flow: builtins.int = ...,
+        average_occupancy: builtins.float = ...,
+        average_speed: builtins.float = ...,
         lanes: collections.abc.Iterable[global___PeMS.Lane] | None = ...,
-        observed: builtins.float = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["lanes", b"lanes", "observed", b"observed", "station_id", b"station_id", "time", b"time"]) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["average_occupancy", b"average_occupancy", "average_speed", b"average_speed", "direction", b"direction", "district", b"district", "freeway", b"freeway", "lane_type", b"lane_type", "lanes", b"lanes", "percentage_observed", b"percentage_observed", "samples", b"samples", "station_id", b"station_id", "station_length", b"station_length", "time", b"time", "total_flow", b"total_flow"]) -> None: ...
 
 global___PeMS = PeMS
