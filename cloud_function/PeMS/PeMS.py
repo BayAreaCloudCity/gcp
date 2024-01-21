@@ -1,3 +1,4 @@
+import gc
 import gzip
 import os
 from io import StringIO
@@ -64,7 +65,12 @@ def download(days_to_fetch: List = None):
                 print(f"Upload {file['file_name']}.")
                 gzipped_data = session.get(BASE_URL + file['url'])
                 gzipped_data.raise_for_status()
-                upload(gzip.decompress(gzipped_data.content))
+                data = gzip.decompress(gzipped_data.content)
+
+                del gzipped_data
+                gc.collect()
+
+                upload(data)
 
 
 def parse_int(val: str):
@@ -112,7 +118,9 @@ def upload(pems_data: bytes):
                 ))
 
         data.append(json_format.MessageToDict(pems, preserving_proto_field_name=True))
+        del pems
 
-    client.load_table_from_json(
+    result = client.load_table_from_json(
         data,
         f"{os.environ['DATASET_ID']}.{os.environ['TABLE_ID']}", job_config=job_config).result()
+    print(f"{result.output_rows} rows uploaded.")
