@@ -162,3 +162,5 @@ cython_debug/
 *.json
 .DS_Store
 .idea
+*_pb2.py
+*.pyi
