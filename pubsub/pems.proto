@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+//import "bq_table.proto";
+//import "bq_field.proto";
+//package pems;
+
+message PeMS {
+//  option (gen_bq_schema.bigquery_opts).table_name = "pems";
+  string time = 1;
+  uint32 station_id = 2;
+  uint32 district = 3;
+  uint32 freeway = 4;
+  string direction = 5;
+  string lane_type = 6;
+  float station_length = 7;
+  uint32 samples = 8;
+  uint32 percentage_observed = 9;
+  uint32 total_flow = 10;
+  float average_occupancy = 11;
+  float average_speed = 12;
+  repeated Lane lanes = 13;
+
+  message Lane {
+    uint32 samples = 1;
+    uint32 flow = 2;
+    float average_occupancy = 3;
+    float average_speed = 4;
+    bool observed = 5;
+  }
+}
