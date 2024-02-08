@@ -117,7 +117,9 @@ def upload(pems_data: bytes):
                     observed=parse_int(row[offset + i * 5 + 4]) == 1
                 ))
 
-        data.append(json_format.MessageToDict(pems, preserving_proto_field_name=True))
+        result = json_format.MessageToDict(pems, preserving_proto_field_name=True)
+        result['publish_time'] = int(datetime.strptime(pems.time, "%m/%d/%Y %H:%M:%S").replace(tzinfo=ZoneInfo("America/Los_Angeles")).timestamp() * 1000000)
+        data.append(result)
         del pems
 
     result = client.load_table_from_json(

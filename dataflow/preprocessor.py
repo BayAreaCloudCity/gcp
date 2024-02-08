@@ -7,7 +7,7 @@ from apache_beam import (
     Map, ParDo, CoGroupByKey, WindowInto
 )
 from apache_beam.options.pipeline_options import PipelineOptions
-from apache_beam.pvalue import PCollection, DoOutputsTuple
+from apache_beam.pvalue import PCollection
 from apache_beam.transforms.window import SlidingWindows
 from google.cloud import bigquery
 
@@ -44,39 +44,39 @@ def run(pipeline_args=None):
     segments = get_conf()
     segment_ids = [str(segment['id']) for segment in segments]
 
-
     with Pipeline(options=pipeline_options) as pipeline:
         window = SlidingWindows(900, 60)
         bay_area_511_event: PCollection = (
                 pipeline
-                | "bay_area_511_event: Read" >> io.ReadFromPubSub(subscription='projects/cloud-city-cal/subscriptions/preprocessor.bay_area_511_event.replayed')
+                | "bay_area_511_event: Read" >> io.ReadFromPubSub(
+            subscription='projects/cloud-city-cal/subscriptions/preprocessor.bay_area_511_event.replayed')
                 | "bay_area_511_event: Map" >> ParDo(BayArea511EventTransformDoFn(segments))
-                | 'bay_area_511_event: window' >> WindowInto(window)
+                | 'bay_area_511_event: Window' >> WindowInto(window)
         )
 
         pems: PCollection = (
                 pipeline
-                | "pems: Read" >> io.ReadFromPubSub(subscription='projects/cloud-city-cal/subscriptions/preprocessor.pems.replayed')
+                | "pems: Read" >> io.ReadFromPubSub(
+            subscription='projects/cloud-city-cal/subscriptions/preprocessor.pems.replayed')
                 | "pems: Map" >> ParDo(PeMSTransformDoFn(segments))
-                | 'pems: window' >> WindowInto(window)
+                | 'pems: Window' >> WindowInto(window)
         )
 
         weather: PCollection = (
                 pipeline
-                | "weather: Read" >> io.ReadFromPubSub(subscription='projects/cloud-city-cal/subscriptions/preprocessor.weather.replayed')
+                | "weather: Read" >> io.ReadFromPubSub(
+            subscription='projects/cloud-city-cal/subscriptions/preprocessor.weather.replayed')
                 | "weather: Map" >> ParDo(WeatherTransformDoFn(segments))
-                | 'weather: window' >> WindowInto(window)
+                | 'weather: Window' >> WindowInto(window)
         )
 
         (({
             'bay_area_511_event': bay_area_511_event, 'pems': pems, 'weather': weather
         })
-            | 'Merge' >> CoGroupByKey()
-            | 'Encode' >> ParDo(SegmentFeatureTransformDoFn(segments))
-            # | 'Write' >> io.WriteToPubSub()
-        )
-
-
+         | 'Merge' >> CoGroupByKey()
+         | 'Encode' >> ParDo(SegmentFeatureTransformDoFn(segments))
+         | 'Write' >> Map(print)
+         )
 
 
 if __name__ == "__main__":

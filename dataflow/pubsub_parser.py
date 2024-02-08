@@ -1,13 +1,16 @@
 from datetime import datetime
 from typing import List, Dict, Set, Tuple
+from zoneinfo import ZoneInfo
 
 import geopy.distance
 import numpy as np
 from apache_beam import DoFn
+from apache_beam.runners.common import Timestamp
 from apache_beam.transforms.window import TimestampedValue
 
 from dataflow.bay_area_511_event_pb2 import Event
 from dataflow.pems_pb2 import PeMS
+from dataflow.processed_pb2 import Processed
 from dataflow.segment_definition import SegmentDefinition
 from dataflow.weather_pb2 import Weather
 
@@ -78,10 +81,16 @@ class SegmentFeatureTransformDoFn(DoFn):
 
     def process(self, element):
         segment_id, data = element
-        t = self.__get_latest_t(element['bay_area_511_event'] + element['pems'] + element['weather'])
-        features = self.get_event_features(element['bay_area_511_event'], segment_id, t)
+        t = self.__get_latest_t(data['bay_area_511_event'] + data['pems'] + data['weather'])
+        features = self.get_event_features(data['bay_area_511_event'], segment_id, t) + \
+                   self.get_pems_feature(data['pems'], segment_id) + \
+                   self.get_weather_features(data['weather']) + \
+                   self.get_time_features(t)
+        processed = Processed(coefficients=features, model_version=1, event_timestamp=t.seconds(),
+                              segment_id=segment_id)
+        yield processed
 
-    def get_event_features(self, events: List[Event], segment_id: int, t: int) -> List[float]:
+    def get_event_features(self, events: List[TimestampedValue[Event]], segment_id: int, t: Timestamp) -> List[float]:
         EVENT_TYPE_TO_IDX = ["CONSTRUCTION", "SPECIAL_EVENT", "INCIDENT", "WEATHER_CONDITION", "ROAD_CONDITION", "None"]
         score = 0.0
         event_type = EVENT_TYPE_TO_IDX[-1]
@@ -89,16 +98,42 @@ class SegmentFeatureTransformDoFn(DoFn):
             new_score = self.__get_event_score(event, segment_id, t)
             if new_score > score:
                 score = new_score
-                event_type = event.event_type
+                event_type = event.value.event_type
         event_type_ohe = [0.0] * len(EVENT_TYPE_TO_IDX)
         event_type_ohe[EVENT_TYPE_TO_IDX.index(event_type)] = 1.0
         return event_type_ohe + [score]
 
-    def __get_event_score(self, event: Event, segment_id: int, t: int) -> float:
-        SEVERITY_TO_SCORE = {"MINOR": 1, "MODERATE": 2, "MAJOR": 3, "SEVERE": 4, "UNKNOWN": 1}
-        return (SEVERITY_TO_SCORE[event.severity] *
-                (np.exp(-float(t - event[3]) / 1800)
-                 + np.exp(-geopy.distance.geodesic(reversed(event.geography_point.coordinates),
+    def get_weather_features(self, weather: List[TimestampedValue[Weather]]) -> List[float]:
+        WEATHER_CONDITIONS = ["Thunderstorm", "Drizzle", "Rain", "Snow", "Mist", "Smoke", "Haze", "Dust", "Fog", "Sand",
+                              "Ash", "Squall", "Tornado", "Clear", "Clouds"]
+        weather_encoding = [0.0] * len(WEATHER_CONDITIONS)
+
+        most_recent = max(weather, key=lambda x: x.timestamp, default=None)
+        if most_recent is not None:
+            weather_encoding[WEATHER_CONDITIONS.index(most_recent.value.weather[0].main)] = 1.0
+            weather_encoding += [most_recent.value.visibility]
+        else:
+            weather_encoding += 0.0  # TODO: Impute better
+        return weather_encoding
+
+    def get_pems_feature(self, pems: List[TimestampedValue[PeMS]], segment_id: int):
+        return [0.0]  # TODO
+
+    def get_time_features(self, t: Timestamp):
+        DAYS_OF_WEEK = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        HOURS_OF_DAY = [f"Hour{i}" for i in range(24)]
+        days_ohe = [0.0] * len(DAYS_OF_WEEK)
+        hours_ohe = [0.0] * len(HOURS_OF_DAY)
+        dt = datetime.fromtimestamp(t.seconds(), tz=ZoneInfo("America/Los_Angeles"))
+        days_ohe[dt.weekday()] = 1.0
+        hours_ohe[dt.hour] = 1.0
+        return days_ohe + hours_ohe
+
+    def __get_event_score(self, event: TimestampedValue[Event], segment_id: int, t: Timestamp) -> float:
+        SEVERITY_TO_SCORE = {"Minor": 1, "Moderate": 2, "Major": 3, "Severe": 4, "Unknown": 1}
+        return (SEVERITY_TO_SCORE[event.value.severity] *
+                (np.exp(-float(t.seconds() - event.timestamp.seconds()) / 1800)
+                 + np.exp(-geopy.distance.geodesic(reversed(event.value.geography_point.coordinates),
                                                    self.__get_segment(segment_id)['representative_point']).miles / 5)))
 
     def __get_segment(self, idx: int) -> SegmentDefinition:

@@ -11,6 +11,7 @@ from google.protobuf import json_format
 from bay_area_511_event_pb2 import Event
 from simulation import Simulation
 from weather_pb2 import Weather
+from pems_pb2 import PeMS
 
 import functions_framework
 from cloudevents.http import CloudEvent
@@ -31,7 +32,10 @@ CONFIG = [
            topic_id="projects/cloud-city-cal/topics/data.weather.replayed", fetch_interval=timedelta(minutes=10)),
     Config(table_name="cloud_city.bay_area_511_event", proto_type=Event,
            topic_id="projects/cloud-city-cal/topics/data.bay_area_511_event.replayed",
-           fetch_interval=timedelta(minutes=10))
+           fetch_interval=timedelta(minutes=10)),
+    Config(table_name="cloud_city.pems", proto_type=PeMS,
+           topic_id="projects/cloud-city-cal/topics/data.pems.replayed",
+           fetch_interval=timedelta(minutes=5))
 ]
 
 '''
