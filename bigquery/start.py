@@ -193,7 +193,7 @@ def main():
     project_id = "cloud-city-cal"
     dataset_definition = {
         "511_org": {
-            "event": event_schema,
+            "message.proto": event_schema,
             "road": road_schema,
             "area": area_schema,
             "event_area": event_area_schema,

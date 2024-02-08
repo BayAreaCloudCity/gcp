@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+//import "bq_table.proto";
+//import "bq_field.proto";
+//package pems;
+
+message Processed {
+  repeated float coefficients = 1;
+  uint32 model_version = 100;
+  uint32 event_timestamp = 101;
+  uint32 segment_id = 102;
+}
