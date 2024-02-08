@@ -1,5 +1,5 @@
 import logging
-from typing import List
+import os
 
 from apache_beam import (
     io,
@@ -9,30 +9,10 @@ from apache_beam import (
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.pvalue import PCollection
 from apache_beam.transforms.window import SlidingWindows
-from google.cloud import bigquery
 
-from dataflow.pubsub_parser import BayArea511EventTransformDoFn, PeMSTransformDoFn, WeatherTransformDoFn, \
+from bigquery.metadata import get_metadata
+from dataflow.dofn import BayArea511EventTransformDoFn, PeMSTransformDoFn, WeatherTransformDoFn, \
     SegmentFeatureTransformDoFn
-from dataflow.segment_definition import SegmentDefinition
-
-
-def get_conf() -> List[SegmentDefinition]:
-    client = bigquery.Client(project="cloud-city-cal")
-    job_config = bigquery.QueryJobConfig(
-        query_parameters=[
-            bigquery.ScalarQueryParameter("version", "INT64", 2)
-        ],
-    )
-
-    query_job = client.query(
-        f"""
-            SELECT *
-            FROM `cloud_city.metadata`
-            WHERE version = @version
-            """, job_config=job_config)
-
-    result = query_job.result(max_results=1)
-    return next(result).data
 
 
 def run(pipeline_args=None):
@@ -41,8 +21,7 @@ def run(pipeline_args=None):
         pipeline_args, streaming=True, save_main_session=True
     )
 
-    segments = get_conf()
-    segment_ids = [str(segment['id']) for segment in segments]
+    segments = get_metadata(int(os.environ['METADATA_VERSION']))
 
     with Pipeline(options=pipeline_options) as pipeline:
         window = SlidingWindows(900, 60)

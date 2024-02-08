@@ -7,7 +7,7 @@ from cloudevents.http import CloudEvent
 from google.cloud.pubsub import PublisherClient
 from google.protobuf.json_format import ParseDict
 
-from bay_area_511_event_pb2 import Event
+from pubsub.bay_area_511_event_pb2 import Event
 
 API_ENDPOINT = "https://api.511.org/traffic/events"
 

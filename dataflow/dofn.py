@@ -8,17 +8,17 @@ from apache_beam import DoFn
 from apache_beam.runners.common import Timestamp
 from apache_beam.transforms.window import TimestampedValue
 
-from dataflow.bay_area_511_event_pb2 import Event
-from dataflow.pems_pb2 import PeMS
-from dataflow.processed_pb2 import Processed
-from dataflow.segment_definition import SegmentDefinition
-from dataflow.weather_pb2 import Weather
+from pubsub.bay_area_511_event_pb2 import Event
+from pubsub.pems_pb2 import PeMS
+from pubsub.processed_pb2 import Processed
+from bigquery.metadata import Segment
+from pubsub.weather_pb2 import Weather
 
 
 class WeatherTransformDoFn(DoFn):
     __city_to_segments: Dict[str, Set[int]] = dict()
 
-    def __init__(self, segments: List[SegmentDefinition]):
+    def __init__(self, segments: List[Segment]):
         super().__init__()
         for segment in segments:
             if segment['city'] not in self.__city_to_segments:
@@ -37,7 +37,7 @@ class BayArea511EventTransformDoFn(DoFn):
     __segment_to_coord: Dict[int, Tuple[float, float]] = dict()
     MAXIMUM_DISTANCE_MILES = 10
 
-    def __init__(self, segments: List[SegmentDefinition]):
+    def __init__(self, segments: List[Segment]):
         super().__init__()
         for segment in segments:
             self.__segment_to_coord[segment['id']] = segment['representative_point']
@@ -56,7 +56,7 @@ class BayArea511EventTransformDoFn(DoFn):
 class PeMSTransformDoFn(DoFn):
     __station_to_segment: Dict[int, Set[int]] = dict()
 
-    def __init__(self, segments: List[SegmentDefinition]):
+    def __init__(self, segments: List[Segment]):
         super().__init__()
         for segment in segments:
             for station_id in segment['station_ids']:
@@ -73,9 +73,9 @@ class PeMSTransformDoFn(DoFn):
 
 
 class SegmentFeatureTransformDoFn(DoFn):
-    __segments: List[SegmentDefinition] = []
+    __segments: List[Segment] = []
 
-    def __init__(self, segments: List[SegmentDefinition]):
+    def __init__(self, segments: List[Segment]):
         super().__init__()
         self.__segments = segments
 
@@ -136,7 +136,7 @@ class SegmentFeatureTransformDoFn(DoFn):
                  + np.exp(-geopy.distance.geodesic(reversed(event.value.geography_point.coordinates),
                                                    self.__get_segment(segment_id)['representative_point']).miles / 5)))
 
-    def __get_segment(self, idx: int) -> SegmentDefinition:
+    def __get_segment(self, idx: int) -> Segment:
         return next(segment for segment in self.__segments if segment['id'] == idx)
 
     def __get_latest_t(self, rows: List[TimestampedValue]):

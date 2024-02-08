@@ -8,10 +8,10 @@ import google.protobuf.message
 from google.cloud import bigquery, pubsub
 from google.protobuf import json_format
 
-from bay_area_511_event_pb2 import Event
+from pubsub.bay_area_511_event_pb2 import Event
 from simulation import Simulation
-from weather_pb2 import Weather
-from pems_pb2 import PeMS
+from pubsub.weather_pb2 import Weather
+from pubsub.pems_pb2 import PeMS
 
 import functions_framework
 from cloudevents.http import CloudEvent

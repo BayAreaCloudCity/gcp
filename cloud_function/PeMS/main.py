@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from google.protobuf import json_format
-from pems_pb2 import PeMS
+from pubsub.pems_pb2 import PeMS
 import tqdm
 
 BASE_URL = "https://pems.dot.ca.gov"
