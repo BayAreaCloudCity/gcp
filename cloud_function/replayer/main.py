@@ -33,7 +33,7 @@ CONFIG = [
     Config(table_name="cloud_city.bay_area_511_event", proto_type=Event,
            topic_id="projects/cloud-city-cal/topics/data.bay_area_511_event.replayed",
            fetch_interval=timedelta(minutes=10)),
-    Config(table_name="cloud_city.pems", proto_type=PeMS,
+    Config(table_name="cloud_city.pems_partitioned", proto_type=PeMS,
            topic_id="projects/cloud-city-cal/topics/data.pems.replayed",
            fetch_interval=timedelta(minutes=5))
 ]

@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package pubsub;
 
-message Processed {
-  repeated float coefficients = 1;
+message Result {
+  float output = 1;
   uint32 metadata_version = 100;
   uint32 timestamp = 101;
   uint32 segment_id = 102;
