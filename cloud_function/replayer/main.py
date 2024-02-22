@@ -9,6 +9,7 @@ from google.cloud import bigquery, pubsub
 from google.protobuf import json_format
 
 from pubsub.bay_area_511_event_pb2 import Event
+from pubsub.processed_pb2 import Processed
 from simulation import Simulation
 from pubsub.weather_pb2 import Weather
 from pubsub.pems_pb2 import PeMS
@@ -28,14 +29,8 @@ class Config(TypedDict):
 
 
 CONFIG = [
-    Config(table_name="cloud_city.weather", proto_type=Weather,
-           topic_id="projects/cloud-city-cal/topics/data.weather.replayed", fetch_interval=timedelta(minutes=10)),
-    Config(table_name="cloud_city.bay_area_511_event", proto_type=Event,
-           topic_id="projects/cloud-city-cal/topics/data.bay_area_511_event.replayed",
-           fetch_interval=timedelta(minutes=10)),
-    Config(table_name="cloud_city.pems_partitioned", proto_type=PeMS,
-           topic_id="projects/cloud-city-cal/topics/data.pems.replayed",
-           fetch_interval=timedelta(minutes=5))
+    Config(table_name="cloud_city.processed_partitioned", proto_type=Processed,
+           topic_id="projects/cloud-city-cal/topics/model.input", fetch_interval=timedelta(minutes=5)),
 ]
 
 '''
@@ -46,7 +41,6 @@ PROJECT_ID: Current project ID
 
 @functions_framework.cloud_event
 def entrypoint(cloud_event: CloudEvent):
-    print(json.dumps(cloud_event.data))
     replay(Simulation(
         simulation_start_time=datetime.fromisoformat(cloud_event.data['message']['attributes']['simulation_start_time']),
         simulation_end_time=datetime.fromisoformat(cloud_event.data['message']['attributes']['simulation_end_time']) if

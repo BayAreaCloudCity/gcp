@@ -24,7 +24,7 @@ CONFIG_VERSION: Version of the config to use
 
 @functions_framework.cloud_event
 def collect_weather_data(cloud_event: CloudEvent):
-    for segment in get_metadata(int(os.environ['METADATA_VERSION'])):
+    for segment in get_metadata(int(os.environ['METADATA_VERSION']))['segments']:
         get_weather(lat=segment["representative_point"][0], lon=segment["representative_point"][1])
 
 

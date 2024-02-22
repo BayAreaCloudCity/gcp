@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from google.protobuf import json_format
+
+from bigquery.metadata import get_schema
 from pubsub.pems_pb2 import PeMS
 import tqdm
 
@@ -29,7 +31,7 @@ TABLE_ID: Table ID to check for existing records
 
 
 @functions_framework.cloud_event
-def collect_pems_data(cloud_event: CloudEvent):
+def entrypoint(cloud_event: CloudEvent):
     download()
 
 
@@ -83,7 +85,7 @@ def parse_float(val: str):
 
 def upload(pems_data: bytes):
     client = bigquery.Client(project=os.environ['PROJECT_ID'])
-    job_config = bigquery.LoadJobConfig(schema=client.get_table(f"{os.environ['DATASET_ID']}.{os.environ['TABLE_ID']}").schema)
+    job_config = bigquery.LoadJobConfig(schema=get_schema(os.environ['DATASET_ID'], os.environ['TABLE_ID']))
     data = []
 
     reader = csv.reader(StringIO(pems_data.decode()), delimiter=",")
