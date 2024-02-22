@@ -30,7 +30,6 @@ TABLE_ID: Table ID to check for existing records
 '''
 
 
-@functions_framework.cloud_event
 def entrypoint(cloud_event: CloudEvent):
     download()
 

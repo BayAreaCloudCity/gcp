@@ -76,10 +76,12 @@ class PeMSTransformDoFn(DoFn):
 
 class SegmentFeatureTransformDoFn(DoFn):
     __segments: List[Segment] = []
+    __metadata_version: int
 
-    def __init__(self, segments: List[Segment]):
+    def __init__(self, segments: List[Segment], metadata_version: int):
         super().__init__()
         self.__segments = segments
+        self.__metadata_version = metadata_version
 
     def process(self, element, window=DoFn.WindowParam):
         segment_id, data = element
@@ -90,7 +92,7 @@ class SegmentFeatureTransformDoFn(DoFn):
                    self.get_time_features(t)
         yield {
             "coefficients": features,
-            "metadata_version": 2,
+            "metadata_version": self.__metadata_version,
             "timestamp": t.seconds(),
             "segment_id": segment_id,
             "publish_time": t.micros # in streaming mode, this will be overwritten with actual pubsub time

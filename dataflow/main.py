@@ -65,7 +65,7 @@ def run(partition: int, metadata_version: int, save_to_bigquery: bool, pipeline_
             'bay_area_511_event': bay_area_511_event, 'weather': weather, 'pems': pems
         })
                                | 'Merge' >> CoGroupByKey()
-                               | 'Encode' >> ParDo(SegmentFeatureTransformDoFn(segments)))
+                               | 'Encode' >> ParDo(SegmentFeatureTransformDoFn(segments, metadata_version)))
 
         if save_to_bigquery:
             (result

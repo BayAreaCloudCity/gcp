@@ -1,21 +1,17 @@
-import json
+import base64
 import os
 from datetime import datetime, timedelta
 from typing import TypedDict
 from zoneinfo import ZoneInfo
 
+import functions_framework
 import google.protobuf.message
+from cloudevents.http import CloudEvent
 from google.cloud import bigquery, pubsub
 from google.protobuf import json_format
 
-from pubsub.bay_area_511_event_pb2 import Event
+from cloud_function.replayer.simulation import Simulation
 from pubsub.processed_pb2 import Processed
-from simulation import Simulation
-from pubsub.weather_pb2 import Weather
-from pubsub.pems_pb2 import PeMS
-
-import functions_framework
-from cloudevents.http import CloudEvent
 
 QUERY = "SELECT * FROM {} WHERE publish_time > @start AND publish_time < @end"
 CURRENT_TIMEZONE = ZoneInfo("America/Los_Angeles")
@@ -39,7 +35,6 @@ PROJECT_ID: Current project ID
 '''
 
 
-@functions_framework.cloud_event
 def entrypoint(cloud_event: CloudEvent):
     replay(Simulation(
         simulation_start_time=datetime.fromisoformat(cloud_event.data['message']['attributes']['simulation_start_time']),
@@ -67,6 +62,7 @@ def replay_config(config: Config, time: datetime):
     for row in query_job.result():
         message = config['proto_type']()
         proto = json_format.ParseDict(dict(row), message, ignore_unknown_fields=True)
+        print(base64.b64encode(message.SerializeToString()))
         pubsub_client.publish(config['topic_id'], proto.SerializeToString())
         count += 1
 
