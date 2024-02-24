@@ -1,21 +1,20 @@
+import csv
 import gc
 import gzip
 import os
+from datetime import datetime, timedelta
 from io import StringIO
 from typing import List
 from zoneinfo import ZoneInfo
 
-import functions_framework
 import requests
-import csv
-from datetime import datetime, timedelta
+import tqdm
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from google.protobuf import json_format
 
 from bigquery.metadata import get_schema
 from pubsub.pems_pb2 import PeMS
-import tqdm
 
 BASE_URL = "https://pems.dot.ca.gov"
 DISTRICT_ID = 4
@@ -30,7 +29,7 @@ TABLE_ID: Table ID to check for existing records
 '''
 
 
-def entrypoint(cloud_event: CloudEvent):
+def collect_pems(cloud_event: CloudEvent):
     download()
 
 

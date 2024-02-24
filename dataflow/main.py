@@ -1,8 +1,7 @@
 import argparse
 import json
 import logging
-import os
-from datetime import datetime, timezone
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from apache_beam import (
@@ -16,7 +15,7 @@ from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.pvalue import PCollection
 from apache_beam.transforms.window import SlidingWindows
 
-from bigquery.metadata import get_metadata, get_schema
+from bigquery.metadata import get_metadata
 from dataflow.dofn import BayArea511EventTransformDoFn, PeMSTransformDoFn, WeatherTransformDoFn, \
     SegmentFeatureTransformDoFn
 

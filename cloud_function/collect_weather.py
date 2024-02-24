@@ -1,10 +1,8 @@
-import json
 import os
 
-import functions_framework
 import requests
 from cloudevents.http import CloudEvent
-from google.cloud import bigquery, pubsub
+from google.cloud import pubsub
 from google.protobuf.json_format import ParseDict
 
 from bigquery.metadata import get_metadata
@@ -22,7 +20,7 @@ CONFIG_VERSION: Version of the config to use
 '''
 
 
-def collect_weather_data(cloud_event: CloudEvent):
+def collect_weather(cloud_event: CloudEvent):
     for segment in get_metadata(int(os.environ['METADATA_VERSION']))['segments']:
         get_weather(lat=segment["representative_point"][0], lon=segment["representative_point"][1])
 

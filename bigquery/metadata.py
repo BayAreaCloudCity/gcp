@@ -1,6 +1,7 @@
-from typing import TypedDict, Tuple, Dict, List
-from google.cloud import bigquery
 import os
+from typing import TypedDict, Tuple, Dict, List
+
+from google.cloud import bigquery
 
 
 class Segment(TypedDict):
@@ -9,7 +10,7 @@ class Segment(TypedDict):
     start_postmile: float
     end_postmile: float
     representative_point: Tuple[float, float]
-    station_ids: Dict[str, float]  # TODO: Why str?
+    station_ids: Dict[str, float]
 
 
 class Metadata(TypedDict):

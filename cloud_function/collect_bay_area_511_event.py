@@ -1,7 +1,6 @@
 import os
 from typing import List
 
-import functions_framework
 import requests
 from cloudevents.http import CloudEvent
 from google.cloud.pubsub import PublisherClient
@@ -20,7 +19,7 @@ https://511.org/sites/default/files/2023-10/511%20SF%20Bay%20Open%20Data%20Speci
 '''
 
 
-def entrypoint(cloud_event: CloudEvent):
+def collect_bay_area_511_event(cloud_event: CloudEvent):
     publisher_client = PublisherClient()
     topic_path = publisher_client.topic_path(os.environ['PROJECT_ID'], os.environ['TOPIC_ID'])
 

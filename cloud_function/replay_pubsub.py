@@ -4,13 +4,12 @@ from datetime import datetime, timedelta
 from typing import TypedDict
 from zoneinfo import ZoneInfo
 
-import functions_framework
 import google.protobuf.message
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery, pubsub
 from google.protobuf import json_format
 
-from cloud_function.replayer.simulation import Simulation
+from cloud_function.util.simulation import Simulation
 from pubsub.processed_pb2 import Processed
 
 QUERY = "SELECT * FROM {} WHERE publish_time > @start AND publish_time < @end"
@@ -35,7 +34,7 @@ PROJECT_ID: Current project ID
 '''
 
 
-def entrypoint(cloud_event: CloudEvent):
+def replay_pubsub(cloud_event: CloudEvent):
     replay(Simulation(
         simulation_start_time=datetime.fromisoformat(cloud_event.data['message']['attributes']['simulation_start_time']),
         simulation_end_time=datetime.fromisoformat(cloud_event.data['message']['attributes']['simulation_end_time']) if
