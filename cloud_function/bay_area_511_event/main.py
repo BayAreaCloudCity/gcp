@@ -20,7 +20,6 @@ https://511.org/sites/default/files/2023-10/511%20SF%20Bay%20Open%20Data%20Speci
 '''
 
 
-@functions_framework.cloud_event
 def entrypoint(cloud_event: CloudEvent):
     publisher_client = PublisherClient()
     topic_path = publisher_client.topic_path(os.environ['PROJECT_ID'], os.environ['TOPIC_ID'])

@@ -20,7 +20,8 @@ def get_bay_area_511_event_timestamp(row) -> int:
 
 
 def get_pems_timestamp(row) -> int:
-    return int(datetime.strptime(row['time'], "%m/%d/%Y %H:%M:%S").timestamp())
+    return int(datetime.strptime(row['time'], "%m/%d/%Y %H:%M:%S")
+               .replace(tzinfo=ZoneInfo("America/Los_Angeles")).timestamp())
 
 
 class WeatherTransformDoFn(DoFn):
@@ -117,11 +118,13 @@ class SegmentFeatureTransformDoFn(DoFn):
         weather_encoding = [0.0] * len(WEATHER_CONDITIONS)
 
         most_recent = max(weather, key=lambda x: x['dt'], default=None)
+
         if most_recent is not None:
             weather_encoding[WEATHER_CONDITIONS.index(most_recent['weather'][0]['main'])] = 1.0
             weather_encoding += [most_recent['visibility']]
         else:
-            weather_encoding += [0.0]  # TODO: Impute better
+            weather_encoding[WEATHER_CONDITIONS.index("Clouds")] = 1.0
+            weather_encoding += [10000.0]  # TODO: Impute better
         return weather_encoding
 
     def get_pems_feature(self, pems: List[dict], segment_id: int) -> List[float]:
