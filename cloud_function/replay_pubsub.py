@@ -61,7 +61,6 @@ def replay_config(config: Config, time: datetime):
     for row in query_job.result():
         message = config['proto_type']()
         proto = json_format.ParseDict(dict(row), message, ignore_unknown_fields=True)
-        print(base64.b64encode(message.SerializeToString()))
         pubsub_client.publish(config['topic_id'], proto.SerializeToString())
         count += 1
 

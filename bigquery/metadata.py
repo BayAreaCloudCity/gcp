@@ -9,6 +9,9 @@ class Segment(TypedDict):
     city: str
     start_postmile: float
     end_postmile: float
+    representative_postmile: float
+    start_point: Tuple[float, float]
+    end_point: Tuple[float, float]
     representative_point: Tuple[float, float]
     station_ids: Dict[str, float]
 
