@@ -1,19 +1,20 @@
+import csv
 import gc
 import gzip
 import os
+from datetime import datetime, timedelta
 from io import StringIO
 from typing import List
 from zoneinfo import ZoneInfo
 
-import functions_framework
 import requests
-import csv
-from datetime import datetime, timedelta
+import tqdm
 from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from google.protobuf import json_format
-from pems_pb2 import PeMS
-import tqdm
+
+from bigquery.metadata import get_schema
+from pubsub.pems_pb2 import PeMS
 
 BASE_URL = "https://pems.dot.ca.gov"
 DISTRICT_ID = 4
@@ -28,8 +29,7 @@ TABLE_ID: Table ID to check for existing records
 '''
 
 
-@functions_framework.cloud_event
-def collect_pems_data(cloud_event: CloudEvent):
+def collect_pems(cloud_event: CloudEvent):
     download()
 
 
@@ -83,7 +83,7 @@ def parse_float(val: str):
 
 def upload(pems_data: bytes):
     client = bigquery.Client(project=os.environ['PROJECT_ID'])
-    job_config = bigquery.LoadJobConfig(schema=client.get_table(f"{os.environ['DATASET_ID']}.{os.environ['TABLE_ID']}").schema)
+    job_config = bigquery.LoadJobConfig(schema=get_schema(os.environ['DATASET_ID'], os.environ['TABLE_ID']))
     data = []
 
     reader = csv.reader(StringIO(pems_data.decode()), delimiter=",")
@@ -117,7 +117,9 @@ def upload(pems_data: bytes):
                     observed=parse_int(row[offset + i * 5 + 4]) == 1
                 ))
 
-        data.append(json_format.MessageToDict(pems, preserving_proto_field_name=True))
+        result = json_format.MessageToDict(pems, preserving_proto_field_name=True)
+        result['publish_time'] = int(datetime.strptime(pems.time, "%m/%d/%Y %H:%M:%S").replace(tzinfo=ZoneInfo("America/Los_Angeles")).timestamp() * 1000000)
+        data.append(result)
         del pems
 
     result = client.load_table_from_json(

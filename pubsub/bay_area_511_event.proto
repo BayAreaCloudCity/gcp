@@ -1,11 +1,8 @@
 syntax = "proto3";
 
-//import "bq_table.proto";
-//import "bq_field.proto";
-package bay_area_511;
+package pubsub;
 
 message Event {
-//  option (gen_bq_schema.bigquery_opts).table_name = "bay_area_511_event";
   string url = 1;
   string jurisdiction_url = 2;
   string id = 3;

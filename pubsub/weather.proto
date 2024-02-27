@@ -1,12 +1,8 @@
 syntax = "proto3";
 
-//import "bq_table.proto";
-//import "bq_field.proto";
-//package weather;
+package pubsub;
 
 message Weather {
-//  option (gen_bq_schema.bigquery_opts).table_name = "weather";
-
   Coord coord = 1;
   repeated Weather weather = 2;
   string base = 3;

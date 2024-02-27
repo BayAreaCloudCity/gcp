@@ -1,13 +1,12 @@
 import os
 from typing import List
 
-import functions_framework
 import requests
 from cloudevents.http import CloudEvent
 from google.cloud.pubsub import PublisherClient
 from google.protobuf.json_format import ParseDict
 
-from bay_area_511_event_pb2 import Event
+from pubsub.bay_area_511_event_pb2 import Event
 
 API_ENDPOINT = "https://api.511.org/traffic/events"
 
@@ -20,8 +19,7 @@ https://511.org/sites/default/files/2023-10/511%20SF%20Bay%20Open%20Data%20Speci
 '''
 
 
-@functions_framework.cloud_event
-def collect_bay_area_511_event_data(cloud_event: CloudEvent):
+def collect_bay_area_511_event(cloud_event: CloudEvent):
     publisher_client = PublisherClient()
     topic_path = publisher_client.topic_path(os.environ['PROJECT_ID'], os.environ['TOPIC_ID'])
 

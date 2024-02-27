@@ -11,7 +11,7 @@ __pycache__/
 build/
 develop-eggs/
 dist/
-downloads/
+downloads/j
 eggs/
 .eggs/
 lib/
@@ -162,3 +162,5 @@ cython_debug/
 *.json
 .DS_Store
 .idea
+*_pb2.py
+*.pyi
