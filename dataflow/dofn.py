@@ -28,7 +28,6 @@ class WeatherTransformDoFn(DoFn):
     __city_to_segments: Dict[str, Set[int]] = dict()
 
     def __init__(self, segments: List[Segment]):
-        super().__init__()
         for segment in segments:
             if segment['city'] not in self.__city_to_segments:
                 self.__city_to_segments[segment['city']] = set()
@@ -45,7 +44,6 @@ class BayArea511EventTransformDoFn(DoFn):
     MAXIMUM_DISTANCE_MILES = 10
 
     def __init__(self, segments: List[Segment]):
-        super().__init__()
         for segment in segments:
             self.__segment_to_coord[segment['id']] = segment['representative_point']
 
@@ -62,7 +60,6 @@ class PeMSTransformDoFn(DoFn):
     __station_to_segment: Dict[int, Set[int]] = dict()
 
     def __init__(self, segments: List[Segment]):
-        super().__init__()
         for segment in segments:
             for station_id in segment['station_ids']:
                 if int(station_id) not in self.__station_to_segment:
@@ -80,7 +77,6 @@ class SegmentFeatureTransformDoFn(DoFn):
     __metadata_version: int
 
     def __init__(self, segments: List[Segment], metadata_version: int):
-        super().__init__()
         self.__segments = segments
         self.__metadata_version = metadata_version
 
