@@ -5,6 +5,7 @@ from google.cloud import bigquery
 
 
 class Segment(TypedDict):
+    """Segment definition"""
     id: int
     city: str
     start_postmile: float

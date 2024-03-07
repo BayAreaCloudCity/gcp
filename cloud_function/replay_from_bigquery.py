@@ -23,25 +23,31 @@ class Config(TypedDict):
     fetch_interval: timedelta
 
 
+class Simulation:
+    __simulation_start_time: datetime
+    __simulation_end_time: datetime
+    __real_start_time: datetime
+    __speed: int
+
+    def __init__(self, simulation_start_time: datetime, simulation_end_time: datetime, real_start_time: datetime, speed: int):
+        self.__simulation_start_time = simulation_start_time
+        self.__simulation_end_time = simulation_end_time
+        self.__real_start_time = real_start_time
+        self.__speed = speed
+
+    def is_before_simulation(self, time: datetime):
+        return self.get_simulation_time(time) < self.__simulation_start_time
+
+    def is_after_simulation(self, time: datetime):
+        return self.get_simulation_time(time) > self.__simulation_end_time
+
+    def get_simulation_time(self, time: datetime):
+        return self.__simulation_start_time + (time - self.__real_start_time) * self.__speed
+
 CONFIG = [
     Config(table_name="cloud_city.processed_partitioned", proto_type=Processed,
            topic_id="projects/cloud-city-cal/topics/model.input", fetch_interval=timedelta(minutes=5)),
 ]
-
-'''
-Environment Variables:
-PROJECT_ID: Current project ID
-'''
-
-
-def replay_pubsub(cloud_event: CloudEvent):
-    replay(Simulation(
-        simulation_start_time=datetime.fromisoformat(cloud_event.data['message']['attributes']['simulation_start_time']),
-        simulation_end_time=datetime.fromisoformat(cloud_event.data['message']['attributes']['simulation_end_time']) if
-        'simulation_end_time' in cloud_event.data['message']['attributes'] else datetime.now(CURRENT_TIMEZONE),
-        real_start_time=datetime.fromisoformat(cloud_event.data['message']['attributes']['real_start_time']),
-        speed=int(cloud_event.data['message']['attributes']['speed'])
-    ))
 
 
 def replay_config(config: Config, time: datetime):
@@ -67,11 +73,7 @@ def replay_config(config: Config, time: datetime):
     print(f"Replayed {count} rows from {config['table_name']}.")
 
 
-def turn_off_scheduler():
-    pass  # TODO: Turn off scheduler
-
-
-def replay(simulation: Simulation):
+def replay_from_bigquery(simulation: Simulation):
     now = datetime.now(CURRENT_TIMEZONE)
     time = simulation.get_simulation_time(now)
     print(f"Current time {now} in simulation is {time}.")

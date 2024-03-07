@@ -17,23 +17,9 @@ from bigquery.metadata import get_schema
 from pubsub.pems_pb2 import PeMS
 
 BASE_URL = "https://pems.dot.ca.gov"
-DISTRICT_ID = 4
-
-'''
-Environment Variables:
-USERNAME: Username for pems.dot.ca.gov
-PASSWORD: Password for pems.dot.ca.gov
-PROJECT_ID: Current project ID
-DATASET_ID: Dataset ID to check for existing records
-TABLE_ID: Table ID to check for existing records
-'''
 
 
-def collect_pems(cloud_event: CloudEvent):
-    download()
-
-
-def download(days_to_fetch: List = None):
+def collect_pems(days_to_fetch: List = None):
     if days_to_fetch is None or len(days_to_fetch) == 0:
         days_to_fetch = [(datetime.now(ZoneInfo("America/Los_Angeles")) - timedelta(days=1)).strftime('%Y_%m_%d')]
 
@@ -53,7 +39,7 @@ def download(days_to_fetch: List = None):
     )
 
     months = session.get(BASE_URL, params={"srq": "clearinghouse",
-                                           "district_id": DISTRICT_ID,
+                                           "district_id": os.environ['DISTRICT_ID'],
                                            "yy": days_to_fetch[0][:4],
                                            "type": "station_5min",
                                            "returnformat": "text"})

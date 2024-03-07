@@ -10,36 +10,57 @@ from apache_beam.transforms.window import TimestampedValue
 
 from bigquery.metadata import Segment
 
+# ============ Timestamp Extraction ============
+
 
 def get_weather_timestamp(row) -> int:
+    """Extract timestamp for a weather record, in unix timestamp (seconds)."""
     return row['dt']
 
 
 def get_bay_area_511_event_timestamp(row) -> int:
+    """Extract timestamp for a 511.org record, in unix timestamp (seconds)."""
     return int(datetime.fromisoformat(row['created']).timestamp())
 
 
 def get_pems_timestamp(row) -> int:
+    """
+    Extract timestamp for a PeMS record, in unix timestamp (seconds).
+    PeMS data need to be converted back to UTC time as they're based on Pacific Time.
+    """
     return int(datetime.strptime(row['time'], "%m/%d/%Y %H:%M:%S")
                .replace(tzinfo=ZoneInfo("America/Los_Angeles")).timestamp())
 
+# ============ Segment Mapping ============
+
 
 class WeatherTransformDoFn(DoFn):
+    """
+    Transform a weather record to a timestamped record, whose key is the segment id and value is the weather data.
+    The timestamp is based on the event time, which in this case would be the time when weather info was last updated.
+    A weather record could be transformed into multiple timestamped records, if a city has multiple segments in it.
+    """
     __city_to_segments: Dict[str, Set[int]] = dict()
 
     def __init__(self, segments: List[Segment]):
         for segment in segments:
+            # Create a map between each city and its segments using the metadata.
             if segment['city'] not in self.__city_to_segments:
                 self.__city_to_segments[segment['city']] = set()
             self.__city_to_segments.get(segment['city']).add(segment['id'])
 
     def process(self, row, *args, **kwargs):
         ts = get_weather_timestamp(row)
+        # Find the corresponding segment IDs and send the values.
         for id in self.__city_to_segments.get(row['name'], set()):
             yield TimestampedValue((id, row), ts)
 
 
 class BayArea511EventTransformDoFn(DoFn):
+    """
+    Transform a weather record to a timestamped record, whose key is the segment id and value is the weather data.
+    A weather record could be transformed into multiple timestamped records, if a city has multiple segments in it.
+    """
     __segment_to_coord: Dict[int, Tuple[float, float]] = dict()
     MAXIMUM_DISTANCE_MILES = 10
 

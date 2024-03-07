@@ -8,12 +8,6 @@ from bigquery.metadata import get_metadata
 from pubsub.processed_pb2 import Processed
 from pubsub.result_pb2 import Result
 
-'''
-Environment Variables:
-PROJECT_ID: Current project ID
-TOPIC_ID: Topic ID of the published message
-'''
-
 
 def predict(request: Request):
     processed = Processed()
