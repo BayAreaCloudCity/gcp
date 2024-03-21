@@ -164,3 +164,4 @@ cython_debug/
 .idea
 *_pb2.py
 *.pyi
+*.pem

@@ -1,0 +1,13 @@
+apiVersion: 1
+
+datasources:
+- name: grafana-bigquery-datasource
+  type: grafana-bigquery-datasource
+  access: proxy
+  uid: aad7544c-4c6c-4d78-b3fa-7254620a0ca6
+  jsonData:
+      tokenUri: https://oauth2.googleapis.com/token
+      clientEmail: cloud-city-cal@appspot.gserviceaccount.com
+      authenticationType: jwt
+      defaultProject: cloud-city-cal
+      privateKeyPath: /etc/secrets/gcp.pem
