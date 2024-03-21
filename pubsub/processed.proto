@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package pubsub;
 
+// Processed data, ready to be served to the model.
 message Processed {
   repeated float coefficients = 1;
   uint32 metadata_version = 100;

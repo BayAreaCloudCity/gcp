@@ -13,6 +13,7 @@ RUN grafana-cli plugins install grafana-bigquery-datasource
 
 COPY datasources.yml /etc/grafana/provisioning/datasources/
 COPY dashboards.yml /etc/grafana/provisioning/dashboards/
+# You'll need your own GCP key here. See: https://cloud.google.com/iam/docs/keys-create-delete
 COPY gcp.pem /etc/secrets/
 COPY default.json /dashboards/
 

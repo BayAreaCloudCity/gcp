@@ -1,3 +1,6 @@
+"""
+Setup script for Dataflow workers.
+"""
 import setuptools
 
 setuptools.setup(

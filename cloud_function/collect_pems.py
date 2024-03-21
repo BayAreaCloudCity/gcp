@@ -28,7 +28,7 @@ def collect_pems(days_to_fetch: List = None):
         raise Exception("days_to_fetch does not stay within the same year")
 
     session = requests.Session()
-    # Log in
+    # Log in to PeMS
     session.post(
         BASE_URL,
         data={
@@ -38,6 +38,7 @@ def collect_pems(days_to_fetch: List = None):
         },
     )
 
+    # get information about available data within a year
     months = session.get(BASE_URL, params={"srq": "clearinghouse",
                                            "district_id": os.environ['DISTRICT_ID'],
                                            "yy": days_to_fetch[0][:4],
@@ -47,6 +48,7 @@ def collect_pems(days_to_fetch: List = None):
 
     for files in months.json()['data'].values():
         for file in files:
+            # if any file matches the date we want, download it
             if any(day in file['file_name'] for day in days_to_fetch):
                 print(f"Upload {file['file_name']}.")
                 gzipped_data = session.get(BASE_URL + file['url'])
@@ -54,7 +56,7 @@ def collect_pems(days_to_fetch: List = None):
                 data = gzip.decompress(gzipped_data.content)
 
                 del gzipped_data
-                gc.collect()
+                gc.collect()  # prevent OOM in Cloud Function
 
                 upload(data)
 
@@ -74,6 +76,7 @@ def upload(pems_data: bytes):
 
     reader = csv.reader(StringIO(pems_data.decode()), delimiter=",")
     for row in tqdm.tqdm(reader):
+        # read through CSV and transform it into protobuf
         pems = PeMS(
             time=row[0],
             station_id=parse_int(row[1]),

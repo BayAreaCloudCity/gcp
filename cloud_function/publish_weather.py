@@ -13,6 +13,7 @@ API_ENDPOINT = "https://api.openweathermap.org/data/2.5/weather"
 
 def publish_weather():
     for segment in get_metadata(int(os.environ['METADATA_VERSION']))['segments']:
+        # fetch weather data for each of the segment
         lat = segment["representative_point"][0]
         lon = segment["representative_point"][1]
 

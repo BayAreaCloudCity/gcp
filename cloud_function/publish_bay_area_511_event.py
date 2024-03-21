@@ -17,7 +17,6 @@ def publish_bay_area_511_event():
     events = get_all_events()
     for event in events:
         proto = ParseDict(clean_up_keys(event), Event(), ignore_unknown_fields=True)
-
         publisher_client.publish(topic_path, proto.SerializeToString())
 
 
@@ -36,13 +35,16 @@ def get_all_events() -> List:
         data = response.json()
         events.extend(data['events'])
 
-        if len(data['events']) == 20:
+        if len(data['events']) == 20:  # keep going through the pagination if current data has a full list of events.
             offset += 20
         else:
             return events
 
 
 def clean_up_keys(data: dict | list):
+    """
+    Clean up keys with '+' prefix, which do not follow 511's spec.
+    """
     if isinstance(data, dict):
         for key in list(data.keys()):
             data[key] = clean_up_keys(data[key])
