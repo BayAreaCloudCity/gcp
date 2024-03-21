@@ -9,6 +9,7 @@ from pubsub.result_pb2 import Result
 
 METADATA_CACHE = None
 
+
 def predict(processed: Processed):
     metadata_version = int(os.environ['METADATA_VERSION'])
 

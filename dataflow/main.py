@@ -116,19 +116,22 @@ if __name__ == "__main__":
         "--bay_area_511_event_table",
         help="BigQuery table to read 511.org events data from.",
         type=str,
-        required=True
+        required=True,
+        default="bay_area_511_event_partitioned"
     )
     parser.add_argument(
         "--pems_table",
         help="BigQuery table to read PeMS data from.",
         type=str,
-        required=True
+        required=True,
+        default="pems_partitioned"
     )
     parser.add_argument(
         "--weather_table",
         help="BigQuery table to read weather data from.",
         type=str,
-        required=True
+        required=True,
+        default="weather_partitioned"
     )
     parser.add_argument(
         "--output_table",

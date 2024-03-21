@@ -9,7 +9,6 @@ from zoneinfo import ZoneInfo
 
 import requests
 import tqdm
-from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from google.protobuf import json_format
 
@@ -107,7 +106,8 @@ def upload(pems_data: bytes):
                 ))
 
         result = json_format.MessageToDict(pems, preserving_proto_field_name=True)
-        result['publish_time'] = int(datetime.strptime(pems.time, "%m/%d/%Y %H:%M:%S").replace(tzinfo=ZoneInfo("America/Los_Angeles")).timestamp() * 1000000)
+        result['publish_time'] = int(datetime.strptime(pems.time, "%m/%d/%Y %H:%M:%S").replace(
+            tzinfo=ZoneInfo("America/Los_Angeles")).timestamp() * 1000000)
         data.append(result)
         del pems
 

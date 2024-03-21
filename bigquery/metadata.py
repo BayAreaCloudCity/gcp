@@ -25,6 +25,7 @@ class Metadata(TypedDict):
 METADATA_CACHE: Optional[int] = None
 METADATA_VERSION_CACHE: Optional[Metadata] = None
 
+
 def get_metadata(version: int) -> Metadata:
     """Get model metadata"""
     global METADATA_CACHE, METADATA_VERSION_CACHE

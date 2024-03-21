@@ -1,7 +1,6 @@
 import os
 
 import requests
-from cloudevents.http import CloudEvent
 from google.cloud import pubsub
 from google.protobuf.json_format import ParseDict
 
