@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package pubsub;
 
+// Format defined in: https://openweathermap.org/current
 message Weather {
   Coord coord = 1;
   repeated Weather weather = 2;

@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package pubsub;
 
+// Format defined in: https://pems.dot.ca.gov/?dnode=Clearinghouse&type=station_5min&district_id=4&submit=Submit
+// Login required.
 message PeMS {
   string time = 1;
   uint32 station_id = 2;

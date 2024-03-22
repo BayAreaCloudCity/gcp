@@ -9,7 +9,6 @@ from zoneinfo import ZoneInfo
 
 import requests
 import tqdm
-from cloudevents.http import CloudEvent
 from google.cloud import bigquery
 from google.protobuf import json_format
 
@@ -17,23 +16,9 @@ from bigquery.metadata import get_schema
 from pubsub.pems_pb2 import PeMS
 
 BASE_URL = "https://pems.dot.ca.gov"
-DISTRICT_ID = 4
-
-'''
-Environment Variables:
-USERNAME: Username for pems.dot.ca.gov
-PASSWORD: Password for pems.dot.ca.gov
-PROJECT_ID: Current project ID
-DATASET_ID: Dataset ID to check for existing records
-TABLE_ID: Table ID to check for existing records
-'''
 
 
-def collect_pems(cloud_event: CloudEvent):
-    download()
-
-
-def download(days_to_fetch: List = None):
+def collect_pems(days_to_fetch: List = None):
     if days_to_fetch is None or len(days_to_fetch) == 0:
         days_to_fetch = [(datetime.now(ZoneInfo("America/Los_Angeles")) - timedelta(days=1)).strftime('%Y_%m_%d')]
 
@@ -42,7 +27,7 @@ def download(days_to_fetch: List = None):
         raise Exception("days_to_fetch does not stay within the same year")
 
     session = requests.Session()
-    # Log in
+    # Log in to PeMS
     session.post(
         BASE_URL,
         data={
@@ -52,8 +37,9 @@ def download(days_to_fetch: List = None):
         },
     )
 
+    # get information about available data within a year
     months = session.get(BASE_URL, params={"srq": "clearinghouse",
-                                           "district_id": DISTRICT_ID,
+                                           "district_id": os.environ['DISTRICT_ID'],
                                            "yy": days_to_fetch[0][:4],
                                            "type": "station_5min",
                                            "returnformat": "text"})
@@ -61,6 +47,7 @@ def download(days_to_fetch: List = None):
 
     for files in months.json()['data'].values():
         for file in files:
+            # if any file matches the date we want, download it
             if any(day in file['file_name'] for day in days_to_fetch):
                 print(f"Upload {file['file_name']}.")
                 gzipped_data = session.get(BASE_URL + file['url'])
@@ -68,7 +55,7 @@ def download(days_to_fetch: List = None):
                 data = gzip.decompress(gzipped_data.content)
 
                 del gzipped_data
-                gc.collect()
+                gc.collect()  # prevent OOM in Cloud Function
 
                 upload(data)
 
@@ -88,6 +75,7 @@ def upload(pems_data: bytes):
 
     reader = csv.reader(StringIO(pems_data.decode()), delimiter=",")
     for row in tqdm.tqdm(reader):
+        # read through CSV and transform it into protobuf
         pems = PeMS(
             time=row[0],
             station_id=parse_int(row[1]),
@@ -118,7 +106,8 @@ def upload(pems_data: bytes):
                 ))
 
         result = json_format.MessageToDict(pems, preserving_proto_field_name=True)
-        result['publish_time'] = int(datetime.strptime(pems.time, "%m/%d/%Y %H:%M:%S").replace(tzinfo=ZoneInfo("America/Los_Angeles")).timestamp() * 1000000)
+        result['publish_time'] = int(datetime.strptime(pems.time, "%m/%d/%Y %H:%M:%S").replace(
+            tzinfo=ZoneInfo("America/Los_Angeles")).timestamp() * 1000000)
         data.append(result)
         del pems
 

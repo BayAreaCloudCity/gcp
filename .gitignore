@@ -159,8 +159,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-*.json
 .DS_Store
 .idea
 *_pb2.py
 *.pyi
+*.pem

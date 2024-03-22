@@ -1,0 +1,541 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 5,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-bigquery-datasource",
+        "uid": "aad7544c-4c6c-4d78-b3fa-7254620a0ca6"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "dark-purple",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 30
+              },
+              {
+                "color": "orange",
+                "value": 40
+              },
+              {
+                "color": "#EAB839",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 60
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 21,
+        "w": 7,
+        "x": 0,
+        "y": 0
+      },
+      "id": 23,
+      "options": {
+        "basemap": {
+          "config": {},
+          "name": "Layer 0",
+          "type": "default"
+        },
+        "controls": {
+          "mouseWheelZoom": true,
+          "showAttribution": true,
+          "showDebug": false,
+          "showMeasure": false,
+          "showScale": false,
+          "showZoom": true
+        },
+        "layers": [
+          {
+            "config": {
+              "arrow": 1,
+              "style": {
+                "color": {
+                  "field": "speed",
+                  "fixed": "dark-green"
+                },
+                "lineWidth": 2,
+                "opacity": 1,
+                "rotation": {
+                  "fixed": 0,
+                  "max": 360,
+                  "min": -360,
+                  "mode": "mod"
+                },
+                "size": {
+                  "fixed": 10,
+                  "max": 15,
+                  "min": 2
+                },
+                "symbol": {
+                  "fixed": "img/icons/marker/circle.svg",
+                  "mode": "fixed"
+                },
+                "symbolAlign": {
+                  "horizontal": "center",
+                  "vertical": "center"
+                },
+                "textConfig": {
+                  "fontSize": 12,
+                  "offsetX": 0,
+                  "offsetY": 0,
+                  "textAlign": "center",
+                  "textBaseline": "middle"
+                }
+              }
+            },
+            "location": {
+              "latitude": "latitude",
+              "longitude": "lontitude",
+              "mode": "coords"
+            },
+            "name": "Route",
+            "opacity": 1,
+            "tooltip": true,
+            "type": "route"
+          }
+        ],
+        "tooltip": {
+          "mode": "details"
+        },
+        "view": {
+          "allLayers": true,
+          "id": "coords",
+          "lat": 37.562139,
+          "lon": -122.051027,
+          "shared": true,
+          "zoom": 10.64
+        }
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "aad7544c-4c6c-4d78-b3fa-7254620a0ca6"
+          },
+          "editorMode": "code",
+          "format": 1,
+          "location": "us-west1",
+          "project": "cloud-city-cal",
+          "rawQuery": true,
+          "rawSql": "SELECT \nTIMESTAMP_SECONDS(processed_partitioned.timestamp) AS time,  \nmetadata.lat AS latitude,\nmetadata.lon AS lontitude, \nprocessed_partitioned.coefficients[7] / 20 AS size,\nprocessed_partitioned.coefficients[7] AS speed,\nFROM (SELECT \n          PARSE_NUMERIC(JSON_EXTRACT_SCALAR(segment, \"$.id\")) AS segment_id, \n          PARSE_NUMERIC(JSON_EXTRACT_SCALAR(segment, \"$.representative_point[0]\")) AS lat, \n          PARSE_NUMERIC(JSON_EXTRACT_SCALAR(segment, \"$.representative_point[1]\")) AS lon \n      FROM UNNEST(\n            (SELECT JSON_EXTRACT_ARRAY(data, \"$.segments\")\n              FROM `cloud-city-cal.cloud_city.metadata` WHERE version = 3\n            )\n          ) AS segment\n      ) AS metadata\n, `cloud-city-cal.cloud_city.processed_partitioned` AS processed_partitioned\nWHERE publish_time >= 0\nAND processed_partitioned.segment_id = metadata.segment_id \n-- AND processed_partitioned.timestamp \nAND processed_partitioned.timestamp >= ${__from:date:seconds}\nAND processed_partitioned.timestamp <= ${__from:date:seconds} + 5 * 60\nAND processed_partitioned.coefficients[7] < 100\nORDER BY metadata.segment_id ASC, time ASC;",
+          "refId": "Segment 1",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Traffic Congestion Level",
+      "type": "geomap"
+    },
+    {
+      "datasource": {
+        "type": "grafana-bigquery-datasource",
+        "uid": "aad7544c-4c6c-4d78-b3fa-7254620a0ca6"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Speed (mph)",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Event event_score"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "right"
+              },
+              {
+                "id": "displayName",
+                "value": "Traffic Event Severity Score"
+              },
+              {
+                "id": "custom.axisLabel",
+                "value": "Severity Score"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Actual actual_speed"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Actual Speed"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Prediction prediction"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Predicted Speed"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 9,
+        "x": 7,
+        "y": 0
+      },
+      "id": 6,
+      "maxPerRow": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "repeat": "segment_id",
+      "repeatDirection": "v",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "aad7544c-4c6c-4d78-b3fa-7254620a0ca6"
+          },
+          "editorMode": "code",
+          "format": 1,
+          "location": "us-west1",
+          "project": "cloud-city-cal",
+          "rawQuery": true,
+          "rawSql": "SELECT TIMESTAMP_SECONDS(timestamp), coefficients[7] AS actual_speed FROM `cloud-city-cal.cloud_city.processed_partitioned` \nWHERE segment_id =  PARSE_NUMERIC($segment_id) AND publish_time > 0 ORDER BY timestamp ASC",
+          "refId": "Actual",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "aad7544c-4c6c-4d78-b3fa-7254620a0ca6"
+          },
+          "editorMode": "code",
+          "format": 1,
+          "hide": false,
+          "location": "us-west1",
+          "project": "cloud-city-cal",
+          "rawQuery": true,
+          "rawSql": "SELECT TIMESTAMP_SECONDS(timestamp), output AS prediction FROM `cloud-city-cal.cloud_city.output_partitioned` \nWHERE segment_id =  PARSE_NUMERIC($segment_id) AND output < 100 AND publish_time > 0 ORDER BY timestamp ASC",
+          "refId": "Prediction",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        },
+        {
+          "datasource": {
+            "type": "grafana-bigquery-datasource",
+            "uid": "aad7544c-4c6c-4d78-b3fa-7254620a0ca6"
+          },
+          "editorMode": "code",
+          "format": 1,
+          "hide": false,
+          "location": "us-west1",
+          "project": "cloud-city-cal",
+          "rawQuery": true,
+          "rawSql": "SELECT TIMESTAMP_SECONDS(timestamp), coefficients[6] AS event_score FROM `cloud-city-cal.cloud_city.processed_partitioned` \nWHERE segment_id =  PARSE_NUMERIC($segment_id) AND publish_time > 0 ORDER BY timestamp ASC",
+          "refId": "Event",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          }
+        }
+      ],
+      "title": "Model Output: I-880 Segment $segment_id",
+      "type": "timeseries"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "segment_id",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "1",
+            "value": "1"
+          },
+          {
+            "selected": false,
+            "text": "2",
+            "value": "2"
+          },
+          {
+            "selected": false,
+            "text": "3",
+            "value": "3"
+          },
+          {
+            "selected": false,
+            "text": "4",
+            "value": "4"
+          },
+          {
+            "selected": false,
+            "text": "5",
+            "value": "5"
+          },
+          {
+            "selected": false,
+            "text": "6",
+            "value": "6"
+          },
+          {
+            "selected": false,
+            "text": "7",
+            "value": "7"
+          },
+          {
+            "selected": false,
+            "text": "8",
+            "value": "8"
+          },
+          {
+            "selected": false,
+            "text": "9",
+            "value": "9"
+          },
+          {
+            "selected": false,
+            "text": "10",
+            "value": "10"
+          },
+          {
+            "selected": false,
+            "text": "11",
+            "value": "11"
+          },
+          {
+            "selected": false,
+            "text": "12",
+            "value": "12"
+          },
+          {
+            "selected": false,
+            "text": "13",
+            "value": "13"
+          },
+          {
+            "selected": false,
+            "text": "14",
+            "value": "14"
+          },
+          {
+            "selected": false,
+            "text": "15",
+            "value": "15"
+          },
+          {
+            "selected": false,
+            "text": "16",
+            "value": "16"
+          },
+          {
+            "selected": false,
+            "text": "17",
+            "value": "17"
+          }
+        ],
+        "query": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      }
+    ]
+  },
+  "time": {
+    "from": "2024-02-01T08:07:44.645Z",
+    "to": "2024-02-03T23:54:48.873Z"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Historical Data",
+  "uid": "abe6b42c-156d-42c3-8fee-b0189ee01e9c",
+  "version": 78,
+  "weekStart": ""
+}

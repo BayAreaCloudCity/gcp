@@ -1,8 +1,9 @@
-cloudevents==1.*
-functions-framework==3.*
-google-cloud-bigquery==3.*
-google-cloud-pubsub==2.*
-protobuf==4.*
-tqdm==4.*
-apache-beam==2.*
-geopy==2.*
+cloudevents==1.10.1
+functions-framework==3.5.0
+google-cloud-bigquery==3.16.0
+google-cloud-pubsub==2.19.0
+google-cloud-scheduler==2.13.3
+protobuf==4.25.2
+tqdm==4.66.1
+apache-beam==2.53.0
+geopy==2.4.1
