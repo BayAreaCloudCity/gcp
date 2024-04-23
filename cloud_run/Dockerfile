@@ -11,6 +11,7 @@ ENV GF_ANALYTICS_REPORTING_ENABLED=false \
     GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/dashboards/default.json
 
 RUN grafana-cli plugins install grafana-bigquery-datasource
+RUN grafana-cli admin reset-admin-password YJXjAKubyF7rjCYKki4xeWVp
 
 COPY datasources.yml /etc/grafana/provisioning/datasources/
 COPY dashboards.yml /etc/grafana/provisioning/dashboards/

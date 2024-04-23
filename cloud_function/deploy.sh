@@ -1,5 +1,8 @@
 #!/bin/bash
+# You'll need to create yaml files containing the environment variables in ../.config folder.
 
+cd "$(dirname "$0")" || exit 1
+cd ..
 
 gcloud functions deploy data-collection_bay_area_511_event \
   --gen2 \
