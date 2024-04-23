@@ -51,7 +51,7 @@ class TimeConfig:
         return self.get_simulation_time(time) < self.simulation_start_time
 
     def is_after_simulation(self, time: datetime):
-        return self.get_simulation_time(time) > self.simulation_end_time
+        return self.get_simulation_time(time) >= self.simulation_end_time
 
     def get_simulation_time(self, time: datetime):
         return self.simulation_start_time + (time - self.real_start_time) * self.speed
