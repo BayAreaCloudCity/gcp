@@ -151,7 +151,7 @@
           "zoom": 10.64
         }
       },
-      "pluginVersion": "10.4.0",
+      "pluginVersion": "10.4.2",
       "targets": [
         {
           "datasource": {
@@ -411,6 +411,7 @@
       "type": "timeseries"
     }
   ],
+  "refresh": "1m",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -529,12 +530,12 @@
     ]
   },
   "time": {
-    "from": "2024-02-01T08:07:44.645Z",
-    "to": "2024-02-03T23:54:48.873Z"
+    "from": "now-4d",
+    "to": "now-2d"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Historical Data",
+  "title": "Analysis",
   "uid": "abe6b42c-156d-42c3-8fee-b0189ee01e9c",
   "version": 78,
   "weekStart": ""

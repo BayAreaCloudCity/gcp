@@ -37,7 +37,15 @@ class TimeConfig:
     """int defining the playback speed of the simulation. This variable determines how quickly simulated time advances in 
     comparison to real time.
       A higher speed means the simulation covers the period between simulation_start_time and simulation_end_time faster. """
-    scheduler_name: str  # name of the scheduler responsible for triggering this simulation
+    scheduler_name: str
+    """name of the scheduler responsible for triggering this simulation"""
+
+    def __init__(self, simulation_start_time: str, simulation_end_time: str, real_start_time: str, speed: int, scheduler_name: str):
+        self.simulation_start_time = datetime.fromisoformat(simulation_start_time)
+        self.simulation_end_time = datetime.fromisoformat(simulation_end_time)
+        self.real_start_time = datetime.fromisoformat(real_start_time)
+        self.speed = speed
+        self.scheduler_name = scheduler_name
 
     def is_before_simulation(self, time: datetime):
         return self.get_simulation_time(time) < self.simulation_start_time
@@ -64,18 +72,19 @@ def replay_config(config: DataSourceConfig, time: datetime):
 
     bigquery_client = bigquery.Client(project=os.environ['PROJECT_ID'])
     pubsub_client = pubsub.PublisherClient()
+    topic_path = pubsub_client.topic_path(os.environ['PROJECT_ID'], config.topic_id)
 
     query_job = bigquery_client.query(QUERY.format(config.table_name), job_config=job_config)
     count = 0
 
-    mod = __import__(config.proto_package)
+    mod = __import__(config.proto_package, fromlist=[None])
     message_type = getattr(mod, config.proto_class)
 
     for row in query_job.result():
         # map to ProtoBuf and send them out
         message = message_type()
         proto = json_format.ParseDict(dict(row), message, ignore_unknown_fields=True)
-        pubsub_client.publish(config.topic_id, proto.SerializeToString())
+        pubsub_client.publish(topic_path, proto.SerializeToString())
         count += 1
 
     print(f"Replayed {count} rows from {config.table_name}.")

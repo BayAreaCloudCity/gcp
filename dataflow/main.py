@@ -53,7 +53,7 @@ def run(start: datetime, end: datetime, metadata_version: int,
         bay_area_511_event: PCollection = (
                 pipeline
                 | "511.org Events: Read" >> io.ReadFromBigQuery(
-            query=get_table_query(bay_area_511_event_table, start, end, window_size), use_standard_sql=True)
+            query=get_table_query(bay_area_511_event_table, start, end, timedelta(seconds=window_size)), use_standard_sql=True)
                 | "511.org Events: Map to Segments" >> ParDo(BayArea511EventTransformDoFn(segments))
                 | '511.org Events: Window' >> WindowInto(window)
         )
@@ -61,7 +61,7 @@ def run(start: datetime, end: datetime, metadata_version: int,
         pems: PCollection = (
                 pipeline
                 | "PeMS: Read" >> io.ReadFromBigQuery(
-            query=get_table_query(pems_table, start, end, window_size), use_standard_sql=True)
+            query=get_table_query(pems_table, start, end, timedelta(seconds=window_size)), use_standard_sql=True)
                 | "PeMS: Map to Segments" >> ParDo(PeMSTransformDoFn(segments))
                 | 'PeMS: Window' >> WindowInto(window)
         )
@@ -69,7 +69,7 @@ def run(start: datetime, end: datetime, metadata_version: int,
         weather: PCollection = (
                 pipeline
                 | "Weather: Read" >> io.ReadFromBigQuery(
-            query=get_table_query(weather_table, start, end, window_size), use_standard_sql=True)
+            query=get_table_query(weather_table, start, end, timedelta(seconds=window_size)), use_standard_sql=True)
                 | "Weather: Map to Segments" >> ParDo(WeatherTransformDoFn(segments))
                 | 'Weather: Window' >> WindowInto(window)
         )
