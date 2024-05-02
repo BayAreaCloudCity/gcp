@@ -1,6 +1,6 @@
 # Cloud City on Google Cloud Platform
 
-This project is our reference implementation of using Google Cloud Platform to build a smart city application. It demonstrates how to leverage cloud technology to manage IoT data effectively.
+This project is our reference implementation of using Google Cloud Platform to build a smart city application. It demonstrates how to leverage cloud technology to manage IoT data effectively. For more details, please visit our [home page](https://github.com/BayAreaCloudCity).
 
 
 ![Acrobat_OdcqMPXyql](https://github.com/BayAreaCloudCity/gcp/assets/12138874/3230853e-6441-4a26-8f09-8b4fdb5ac21b)
