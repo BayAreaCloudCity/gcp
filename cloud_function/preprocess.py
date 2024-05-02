@@ -14,4 +14,5 @@ def preprocess():
         pems_table=os.environ['PEMS_TABLE_ID'],
         weather_table=os.environ['WEATHER_TABLE_ID'],
         output_table=os.environ['OUTPUT_TABLE_ID'],
+        pipeline_args=["--temp_location", os.environ['TEMP_LOCATION']]
     )

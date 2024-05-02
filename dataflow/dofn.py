@@ -152,7 +152,7 @@ class SegmentFeatureTransformDoFn(DoFn):
             if new_score > score:
                 score = new_score
                 event_type = event['event_type']
-        event_type_ohe = self.__ohe(possible_event_types, possible_event_types.index(event_type))  # set event type
+        event_type_ohe = self.__ohe(possible_event_types, event_type)  # set event type
         return event_type_ohe + [score]
 
     def get_weather_features(self, weather: List[dict]) -> List[float]:
@@ -218,7 +218,7 @@ class SegmentFeatureTransformDoFn(DoFn):
         OHE based on a list.
         """
         encoding = [0.0] * len(choices)
-        if isinstance(self, int):
+        if isinstance(select, int):
             encoding[select] = 1.0
         else:
             encoding[choices.index(select)] = 1.0

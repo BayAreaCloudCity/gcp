@@ -43,7 +43,7 @@ def get_metadata(version: int) -> Metadata:
     query_job = client.query(
         f"""
             SELECT *
-            FROM `{os.environ['METADATA_DATASET_ID'], os.environ['METADATA_TABLE_ID']}`
+            FROM `{os.environ['METADATA_DATASET_ID']}.{os.environ['METADATA_TABLE_ID']}`
             WHERE version = @version
             """, job_config=job_config)
 

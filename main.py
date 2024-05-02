@@ -14,7 +14,7 @@ from flask import Request
 
 from cloud_function.predict import predict
 from cloud_function.preprocess import preprocess
-from cloud_function.replay_from_bigquery import replay_from_bigquery, TimeConfig
+from cloud_function.replay_from_bigquery import replay_from_bigquery, TimeConfig, DataSourceConfig
 from cloud_function.collect_pems import collect_pems
 from cloud_function.publish_bay_area_511_event import publish_bay_area_511_event
 from cloud_function.publish_weather import publish_weather
@@ -43,6 +43,14 @@ def cf_preprocess(request: Request):
     This cloud function pre-processes the previous day's data for model prediction, and stores them into BigQuery.
     Some CPU (2) and a large memory (8 GiB) is needed due to the need to hold a full day's data, but only need be
     scheduled only once per day (to avoid duplicate data) and after PeMS data has been collected.
+
+    Required environment variables:
+    - DATASET_ID: BigQuery dataset ID to write and read records.
+    - BAY_AREA_511_EVENT_TABLE_ID: BigQuery table for 511.org events.
+    - PEMS_TABLE_ID: BigQuery table for PeMS data.
+    - WEATHER_TABLE_ID: BigQuery table for weather data.
+    - OUTPUT_TABLE_ID: BigQuery table to write output to.
+    - TEMP_LOCATION: Temporary folder on Google Cloud Storage for BigQuery to read/write files.
     """
     return preprocess()
 
@@ -61,7 +69,8 @@ def cf_replay_from_bigquery(cloud_event: CloudEvent):
     - data_source_config: A JSON representation of one or more DataSourceConfig object, which specifies which topics and
                           tables to replay.
     """
-    replay_from_bigquery(TimeConfig(**json.loads(cloud_event.data['time_config'])), json.loads(cloud_event.data['data_source_config']))
+    replay_from_bigquery(TimeConfig(**json.loads(cloud_event.data['message']['attributes']['time_config'])),
+                         list(map(lambda x: DataSourceConfig(**x), json.loads(cloud_event.data['message']['attributes']['data_source_config']))))
 
 
 @functions_framework.cloud_event
