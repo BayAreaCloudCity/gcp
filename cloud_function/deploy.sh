@@ -44,7 +44,7 @@ gcloud functions deploy model \
   --runtime=python311 \
   --source=. \
   --entry-point=cf_predict \
-  --memory=256MiB \
+  --memory=512MiB \
   --cpu=0.333 \
   --env-vars-file=.config/cf_predict.yaml \
   --trigger-http
